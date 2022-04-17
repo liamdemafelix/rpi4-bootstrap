@@ -1,0 +1,26 @@
+[Unit]
+Description=Google Drive via rclone
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+Environment=RCLONE_CONFIG=/home/<username>/.config/rclone/rclone.conf
+KillMode=none
+RestartSec=5
+ExecStart=/usr/bin/rclone mount gcrypt: /mnt/gcrypt \
+        --allow-other \
+        --dir-cache-time 1000h \
+        --poll-interval 15s \
+        --umask 002 \
+        --cache-dir=/mnt/storage/rclone-cache \
+        --vfs-cache-mode writes \
+        --vfs-cache-max-size 20G \
+        --vfs-cache-max-age 336h
+ExecStop=/bin/fusermount -uz /mnt/gcrypt
+Restart=on-failure
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
